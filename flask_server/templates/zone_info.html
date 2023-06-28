@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 480px;
+                width: 800px;
+                margin: 0;
+                background-color: #282a36; /* Dark gray color from Dracula theme */
+                color: #e0e0e0;
+            }
+            .header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 800px;
+                height: 80px;
+                background-color: #282a36; /* Customize header background color as desired */
+            }
+            .header-title {
+                font-family: 'Quicksand', sans-serif;
+                margin-left: 25px;
+                font-size: 33px;
+            }
+            .home-button {
+                background-color: transparent;
+                margin-right: 25px;
+                border: none;
+                color: #e0e0e0;
+                cursor: pointer;
+            }
+            i.size {
+                font-size: 60px;
+            }
+            #data-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: auto;
+            }
+            .content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                flex-grow: 1;
+                padding: 20px;
+            }
+        </style>        
+    </head>
+    <body>
+        <div class="header">
+            <h1 class="header-title">Zone Information</h1>
+            <button class="home-button" onclick="goHome()">
+                <i class="material-icons size">home</i>
+            </button>
+        </div>
+        <div class="content">
+            <p>Display Name: {{ display_name }}</p>
+            <div id="data-container"></div>
+        </div>
+
+        <script>
+            window.onload = function() {
+                getZoneInfo()
+            }
+            function getZoneInfo(){
+                fetch('/get-zone').then(response => response.json()).then(data => {
+                    displayData(data)
+                }).catch(error => {
+                    console.error(error);
+                })
+            }
+            function displayData(data) {
+                const container = document.getElementById('data-container');
+                container.innerHTML = `<p>Data: ${JSON.stringify(data)}</p>`;
+            }
+            function goHome() {
+                window.location.href = '/';
+            }
+        </script>
+    </body>
+</html>

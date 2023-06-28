@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../esp32/grow_green"
+		}
+	],
+	"settings": {}
+}
