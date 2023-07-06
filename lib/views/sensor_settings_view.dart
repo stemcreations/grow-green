@@ -6,18 +6,26 @@ import 'package:grow_green_v2/providers/data_providers.dart';
 import 'package:provider/provider.dart';
 
 class SensorSettingsView extends StatelessWidget {
-  dynamic sensor;
+  final dynamic sensor;
   SensorSettingsView({this.sensor, super.key});
   @override
   Widget build(BuildContext context) {
     DataController dataController = DataController();
-    //dynamic sensor = ModalRoute.of(context)?.settings.arguments;
     String newDisplayName = '';
     int newThreshold = 0;
-    int newPin = 0;
+    int selectedPin = 4;
+    if (sensor.runtimeType.toString() == 'GTZoneModel') {
+      selectedPin = sensor.pin;
+    }
+
+    void updatedSelectedZone(int value) {
+      selectedPin = value;
+    }
+
     return Scaffold(
       appBar: AppBar(
           title: Text('Sensor Settings'),
+          centerTitle: true,
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
@@ -85,26 +93,30 @@ class SensorSettingsView extends StatelessWidget {
                     size: 45,
                     color: Color(0xFF008080),
                   ),
-                  onPressed: () {},
+                  onPressed: () async {
+                    await dataController.updateSensorThreshold(
+                        sensor.sensorId, newThreshold);
+                    sensor.threshold = newThreshold;
+                    sensor.notifyListeners();
+                    await databaseProvider.getSensorList();
+                  },
                 ),
               ),
               sensor.runtimeType.toString() == 'GTZoneModel'
                   ? ListTile(
                       title: Text(kZones[sensor.pin]),
-                      subtitle: TextFormField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Set Zone',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a zone';
-                          }
-                          return null;
+                      subtitle: DropdownButton(
+                        value: selectedPin,
+                        onChanged: (value) async {
+                          updatedSelectedZone(value as int);
+                          databaseProvider.notifyListeners();
                         },
-                        onChanged: (value) {
-                          newPin = int.parse(value);
-                        },
+                        items: kZoneNamesToPin.keys.map((key) {
+                          return DropdownMenuItem(
+                            child: Text(key),
+                            value: kZoneNamesToPin[key],
+                          );
+                        }).toList(),
                       ),
                       trailing: IconButton(
                         icon: Icon(
@@ -112,7 +124,13 @@ class SensorSettingsView extends StatelessWidget {
                           size: 45,
                           color: Color(0xFF008080),
                         ),
-                        onPressed: () {},
+                        onPressed: () async {
+                          await dataController.updateZonePin(
+                              sensor.sensorId, selectedPin);
+                          sensor.pin = selectedPin;
+                          sensor.notifyListeners();
+                          await databaseProvider.getSensorList();
+                        },
                       ),
                     )
                   : Container()

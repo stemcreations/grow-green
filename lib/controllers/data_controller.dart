@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:grow_green_v2/constants.dart';
 import 'package:grow_green_v2/models/readings_model.dart';
-import 'package:grow_green_v2/providers/data_providers.dart';
 import 'package:http/http.dart' as http;
 
 class DataController {
@@ -20,8 +20,8 @@ class DataController {
   Future<void> updateSensorDisplayName(
       String sensorId, String displayName) async {
     var headers = {'Content-Type': 'application/json'};
-    var request = http.Request(
-        'POST', Uri.parse('http://127.0.0.1:5050/update-display_name'));
+    var request =
+        http.Request('POST', Uri.parse('${kServerUrl}update-display_name'));
     request.body =
         json.encode({'sensor_id': sensorId, 'display_name': displayName});
     request.headers.addAll(headers);
@@ -30,6 +30,34 @@ class DataController {
       print('Sensor display name updated');
     } else {
       print('Failed to update sensor display name');
+    }
+  }
+
+  Future<void> updateSensorThreshold(String sensorId, int threshold) async {
+    var headers = {'Content-Type': 'application/json'};
+    var request =
+        http.Request('POST', Uri.parse('${kServerUrl}update-threshold'));
+    request.body = json.encode({'sensor_id': sensorId, 'threshold': threshold});
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      print('Sensor threshold updated');
+    } else {
+      print('Failed to update sensor threshold');
+    }
+  }
+
+  Future<void> updateZonePin(String sensorId, int pin) async {
+    var headers = {'Content-Type': 'application/json'};
+    var request =
+        http.Request('POST', Uri.parse('${kServerUrl}update-zone-pin'));
+    request.body = json.encode({'sensor_id': sensorId, 'pin': pin});
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      print('Zone pin updated');
+    } else {
+      print('Failed to update zone pin');
     }
   }
 

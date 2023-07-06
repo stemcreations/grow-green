@@ -1,4 +1,6 @@
-class ReadingsModel {
+import 'package:flutter/foundation.dart';
+
+class ReadingsModel extends ChangeNotifier {
   String sensorId;
   double moisture;
   double batteryHealth;

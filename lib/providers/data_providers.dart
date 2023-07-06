@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:grow_green_v2/constants.dart';
 import 'package:grow_green_v2/models/g_t_node_model.dart';
 import 'package:grow_green_v2/models/g_t_zone_model.dart';
 import 'package:grow_green_v2/models/readings_model.dart';
@@ -12,10 +13,19 @@ class DatabaseFunctionsProvider extends ChangeNotifier {
   List<dynamic> get sensorList => _sensorList;
   List<ReadingsModel> get readingsList => _readingsList;
 
+  set sensorList(List<dynamic> sensorList) {
+    _sensorList = sensorList;
+    notifyListeners();
+  }
+
+  set readingsList(List<ReadingsModel> readingsList) {
+    _readingsList = readingsList;
+    notifyListeners();
+  }
+
   Future<List<ReadingsModel>> _getSensorReadings() async {
     _readingsList.clear();
-    var request =
-        http.Request('GET', Uri.parse('http://127.0.0.1:5050/sensor-data'));
+    var request = http.Request('GET', Uri.parse('${kServerUrl}sensor-data'));
     http.StreamedResponse response = await request.send();
     String byteStream = await response.stream.bytesToString();
     if (response.statusCode == 200) {
@@ -42,14 +52,12 @@ class DatabaseFunctionsProvider extends ChangeNotifier {
   Future<List<dynamic>> getSensorList() async {
     await _getSensorReadings();
     //Get zones from server
-    var request =
-        http.Request('GET', Uri.parse('http://127.0.0.1:5050/get-zones'));
+    var request = http.Request('GET', Uri.parse('${kServerUrl}get-zones'));
     http.StreamedResponse response = await request.send();
     String byteStream = await response.stream.bytesToString();
 
     //Get nodes from server
-    var nodeRequest =
-        http.Request('GET', Uri.parse('http://127.0.0.1:5050/get-nodes'));
+    var nodeRequest = http.Request('GET', Uri.parse('${kServerUrl}get-nodes'));
     http.StreamedResponse nodeResponse = await nodeRequest.send();
     String nodeByteStream = await nodeResponse.stream.bytesToString();
     if (response.statusCode == 200 && nodeResponse.statusCode == 200) {

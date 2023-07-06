@@ -2,7 +2,7 @@ import 'package:grow_green_v2/models/g_t_zone_model.dart';
 import 'package:grow_green_v2/models/g_t_node_model.dart';
 import 'package:grow_green_v2/models/readings_model.dart';
 
-List<dynamic> sensorList = [
+List<dynamic> sensorListTest = [
   GTZoneModel(
       sensorId: 'G.T.Zone 1212',
       displayName: 'Front Yard',
@@ -23,7 +23,7 @@ List<dynamic> sensorList = [
       sensorId: 'G.T.Node 1015', displayName: 'Tomatoes', threshold: 78),
 ];
 
-List<ReadingsModel> testReadings = [
+List<ReadingsModel> readingsListTest = [
   ReadingsModel(
       sensorId: 'G.T.Zone 1212',
       moisture: 65,
