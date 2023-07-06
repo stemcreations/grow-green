@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>Home</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 480px;
+            width: 800px;
+            margin: 0;
+            background-color: #282a36; /* Dark gray color from Dracula theme */
+        }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-size: 65px; /* Adjust the font size as desired */
+        }
+        .button-container {
+            display: grid;
+            justify-content: left;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 700px;
+            max-height: 400px;
+        }
+        .icon-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .button {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 180px;
+            height: 180px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #44475a; /* Customize button color as desired */
+            color: #e0e0e0; /* Customize button text color as desired */
+        }
+        .icon {
+            font-size: 80px;
+            margin-bottom: 10px;
+        }
+        .zone-display-name {
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .zone-number {
+            font-size: 16px;
+        }
+        .moisture {
+            margin-top: auto;
+            font-size: 12px;
+        }
+        .settings-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            color: #f8f8f2;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="settings-button" onclick="loadSettingsPage()">
+            <i class="material-symbols-outlined">settings</i>
+        </button>
+    </div>
+    <div class="button-container">
+        {% for zone in zones %}
+        <div class="button" onclick="loadZoneInfoPage('{{ zone.display_name }}')">
+            <div class="zone-display-name">{{ zone.display_name }}</div>
+            <div class="icon-container">
+                <span class="material-symbols-outlined">
+                    sprinkler
+                </span>
+            </div>
+            <div class="moisture">{{ zone.moisture }}%</div>
+            <div class="zone-number">{{ zone.zone_number }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function loadZoneInfoPage(displayName){
+            const url = new URL('/zone-info', window.location.href);
+            url.searchParams.set('display_name', displayName);
+            window.location.href = url.toString();
+        }
+    </script>
+
+    <script>
+        function loadSettingsPage() {
+            // Replace "settings_page.html" with the actual URL of your settings page
+            window.location.href = "settings";
+        }
+    </script>
+</body>
+</html>
