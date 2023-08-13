@@ -2,12 +2,16 @@
 #include <WiFiManager.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <SPI.h>
+#include <Adafruit_I2CDevice.h>
+#include "Adafruit_seesaw.h"
 
-int moisturePin = 33;
-int moistureLevel = 0;
-const char* serverUrl = "http://192.168.50.129:5050/sensor-data";
+Adafruit_seesaw ss;
+
+int moisturePin = 3;
+const char* serverUrl = "http://192.168.0.13:5000/sensor-data";
 String espHostName = "";
-#define VBATPIN A13
+#define VBATPIN A0
 
 // send data to server
 void sendData(int moisture, float battery, String sensorId) {
@@ -16,7 +20,6 @@ void sendData(int moisture, float battery, String sensorId) {
   http.addHeader("Content-Type", "application/json");
   String payload = "{\"sensor_id\": \"" + String(sensorId) + "\", \"moisture\": " + String(moisture) + ", \"battery_health\": " + String(battery) + "}";
 
-  //String payload = "{\"sensor_id\": " + String(sensorId) + ", \"moisture\": " + String(moisture) + ", \"battery_health\": " + String(battery) + "}";
   int httpResponseCode = http.POST(payload);
   if (httpResponseCode > 0) {
     Serial.print("HTTP Response code: ");
@@ -58,7 +61,6 @@ void setup_wifi() {
   Serial.println("Connected to wifi");
 }
 
-//TODO need to update this to measure the battery level correctly
 // measure battery level
 float measureBattery() {
   float measuredvbat = analogReadMilliVolts(VBATPIN);
@@ -69,8 +71,10 @@ float measureBattery() {
 
 // measure moisture level
 int measureMoisture() {
-  int moistureLevel = analogRead(moisturePin);
-  //Serial.println(moistureLevel);
+  uint16_t moistureLevel = ss.touchRead(0);
+  float temp = ss.getTemp();
+  Serial.println(temp);
+  Serial.println(moistureLevel);
   return map(moistureLevel, 3300, 1350, 0, 100);
 }
 
@@ -85,7 +89,28 @@ void startSleep() {
 // main setup function
 void setup() {
   Serial.begin(115200);
-  setup_wifi();
+  if(!ss.begin(0x36)) {
+    Serial.println("ERROR! seesaw not found");
+    while(1) {
+      delay(1000);
+      Serial.println("ERROR! seesaw not found");
+      }
+  } else {
+    Serial.println("seesaw started");
+    Serial.print(ss.getVersion(), HEX);
+  }
+
+  float battery = measureBattery();
+  delay(2000);
+  Serial.println("Battery voltage: " + String(battery) + "V");
+  Serial.println("battery health: " + String(map(battery, 3.3, 4.2, 0, 100)) + "%");
+  delay(2000);
+  measureMoisture();
+  delay(2000);
+  measureMoisture();
+  delay(2000);
+  measureMoisture();
+  //setup_wifi();
 }
 
 // main loop function
