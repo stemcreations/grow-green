@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 from green_thumb_node import GreenThumbNode
 from green_thumb_zone import GreenThumbZone
 from database_functions import insert_node_sensor, insert_sensor_reading, insert_zone_sensor, update_node_name, update_node_threshold, update_zone_name, update_zone_pin, update_zone_threshold, new_sensor_check, remove_node, remove_zone, get_sensor_readings, get_nodes, get_zones
@@ -9,6 +10,7 @@ import time
 
 
 app = Flask(__name__, static_url_path='/static')
+CORS(app)
 DATABASE = 'sensor_data.db'
 zone_dict = {4: 'Zone 1', 22: 'Zone 2', 27: 'Zone 3', 23: 'Zone 4', 24: 'Zone 5', 25: 'Zone 6'}
 zone_pins = [4, 22, 27, 23, 24, 25]
@@ -40,6 +42,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS nodes (
                     )''')
 cursor.close()
 conn.close()
+
 
 def get_all_sensor_ids():
     conn = sqlite3.connect(DATABASE)
@@ -143,7 +146,6 @@ def insert_sensor_data():
     try:
         data = request.get_json()
         app.logger.info('Received JSON data: %s', data)  # Log the received data
-        # Rest of your code...
         data = request.get_json()
         sensor_id = data['sensor_id']
         moisture = data['moisture']
@@ -177,21 +179,22 @@ def get_nodes_from_database():
 
 @app.route('/update-threshold', methods=['POST'])
 def update_threshold():
+    #ensure that the post method is done with json data
     data = request.get_json()
     sensor_id = data['sensor_id']
     new_threshold = data['threshold']
     if 'node' in sensor_id.lower():
         node = get_node_from_list(sensor_id)
-        node.display_name = new_threshold
+        node.threshold = new_threshold
         update_node_threshold(node)
     elif 'zone' in sensor_id.lower():
         zone = get_zone_from_list(sensor_id)
-        zone.display_name = new_threshold
-        update_zone_threshold(node)
+        zone.threshold = new_threshold
+        update_zone_threshold(zone)
     return jsonify('new threshold')
 
 @app.route('/update-zone-pin', methods=['POST'])
-def update_zone_pin():
+def update_zone_pin_route():
     data = request.get_json()
     sensor_id = data['sensor_id']
     new_pin = data['pin']
@@ -200,11 +203,12 @@ def update_zone_pin():
     update_zone_pin(zone)
     return jsonify('new zone pin')
 
-@app.route('/update-display_name', methods=['POST'])
+@app.route('/update-display-name', methods=['POST'])
 def update_display_name():
     data = request.get_json()
     sensor_id = data['sensor_id']
     new_name = data['display_name']
+    print(data)
     if 'node' in sensor_id.lower():
         node = get_node_from_list(sensor_id)
         node.display_name = new_name
@@ -232,7 +236,6 @@ def remove_sensor():
 
 @app.route('/time-to-water', methods=['GET', 'POST'])
 def time_to_water():
-    print('time to water')
     if request.method == 'GET':
         print('current time to water')
         #get the time that he zones are scheduled to run
